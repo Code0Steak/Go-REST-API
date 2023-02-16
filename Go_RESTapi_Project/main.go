@@ -8,9 +8,11 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
-//Data Part
+// Data Part
 type Product struct {
 	Id       int
 	Name     string
@@ -24,19 +26,19 @@ var Products []Product //Products array, containing all products
 
 //API Part
 
-//handler 1
+// handler 1
 func displayAll(w http.ResponseWriter, r *http.Request) {
 	log.Println("Endpoint hit: display all products.")
 	json.NewEncoder(w).Encode(Products) //Encode products and send them as a JSON response.
 }
 
-//homepage handler
+// homepage handler
 func homePage(w http.ResponseWriter, r *http.Request) {
 	log.Println("Endpoint hit: homepage")
 	fmt.Fprintf(w, "Welcome to the Products homepage!")
 }
 
-//handler 2
+// handler 2
 func displayProduct(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Endpoint hit: displayProduct. Product to be displayed as per URL:- ", r.URL.Path)
@@ -59,9 +61,11 @@ func displayProduct(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//All routes listed with there handlers
-//Also ListenAndServe declared to spin up web-server
+// All routes listed with there handlers
+// Also ListenAndServe declared to spin up web-server
 func handleRequests() {
+
+	myRouter := mux.NewRouter().StrictSlash(true)
 	http.HandleFunc("/products", displayAll)
 	http.HandleFunc("/", homePage)
 	http.HandleFunc("/product/", displayProduct)
@@ -70,7 +74,7 @@ func handleRequests() {
 
 /*--- API Part ends ---*/
 
-//Application entrypoint
+// Application entrypoint
 func main() {
 
 	Products = []Product{
