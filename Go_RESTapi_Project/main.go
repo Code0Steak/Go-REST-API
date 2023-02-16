@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 //Data Part
@@ -35,9 +36,35 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the Products homepage!")
 }
 
+//handler 2
+func displayProduct(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("Endpoint hit: displayProduct. Product to be displayed as per URL:- ", r.URL.Path)
+	key, err := strconv.Atoi(r.URL.Path[len("product/")+1:]) //get the product id from URL
+	if err != nil {
+		fmt.Fprintf(w, "The product with id %s doesn't exist", r.URL.Path[len("product/")+1:])
+	} else {
+		found := false
+		for _, product := range Products {
+			if product.Id == key {
+				found = true
+				json.NewEncoder(w).Encode(product) //when match is found write the product ot the screen
+				break
+			}
+		}
+		if !found {
+			fmt.Fprintf(w, "The product with id %s doesn't exist", r.URL.Path[len("product/")+1:])
+		}
+	}
+
+}
+
+//All routes listed with there handlers
+//Also ListenAndServe declared to spin up web-server
 func handleRequests() {
 	http.HandleFunc("/products", displayAll)
 	http.HandleFunc("/", homePage)
+	http.HandleFunc("/product/", displayProduct)
 	http.ListenAndServe(":8000", nil)
 }
 
