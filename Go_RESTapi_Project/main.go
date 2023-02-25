@@ -42,13 +42,15 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 func displayProduct(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Endpoint hit: displayProduct. Product to be displayed as per URL:- ", r.URL.Path)
-	key, err := strconv.Atoi(r.URL.Path[len("product/")+1:]) //get the product id from URL
+	vars := mux.Vars(r) //key, err := strconv.Atoi(r.URL.Path[len("product/")+1:]) //get the product id from URL
+	key := vars["id"]
+	k, err := strconv.Atoi(key)
 	if err != nil {
 		fmt.Fprintf(w, "The product with id %s doesn't exist", r.URL.Path[len("product/")+1:])
 	} else {
 		found := false
 		for _, product := range Products {
-			if product.Id == key {
+			if product.Id == k {
 				found = true
 				json.NewEncoder(w).Encode(product) //when match is found write the product ot the screen
 				break
@@ -66,10 +68,10 @@ func displayProduct(w http.ResponseWriter, r *http.Request) {
 func handleRequests() {
 
 	myRouter := mux.NewRouter().StrictSlash(true)
-	http.HandleFunc("/products", displayAll)
-	http.HandleFunc("/", homePage)
-	http.HandleFunc("/product/", displayProduct)
-	http.ListenAndServe(":8000", nil)
+	myRouter.HandleFunc("/products", displayAll) //earlier was http.HandleFunc
+	myRouter.HandleFunc("/", homePage)
+	myRouter.HandleFunc("/product/{id}", displayProduct)
+	http.ListenAndServe(":8000", myRouter)
 }
 
 /*--- API Part ends ---*/
