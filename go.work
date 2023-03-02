@@ -1,0 +1,7 @@
+go 1.20
+
+use (
+	./GoREST2
+	./Go_RESTapi_Project
+	./Learn2
+)

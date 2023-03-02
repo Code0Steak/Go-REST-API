@@ -29,6 +29,16 @@ func main() {
 	checkError(err)
 	defer db.Close()
 
+	result, err := db.Exec("INSERT INTO data VALUES(4, \"Pineapple\")")
+	checkError(err)
+	lastInsertedId, err := result.LastInsertId()
+	checkError(err)
+	fmt.Println("last inserted id: ", lastInsertedId)
+	rowsAffected, err := result.RowsAffected()
+	checkError(err)
+	fmt.Println("rows affected: ", rowsAffected)
+
+	//select and display all rows in database
 	rows, err := db.Query("SELECT * FROM data")
 	checkError(err)
 	for rows.Next() {

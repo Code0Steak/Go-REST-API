@@ -20,7 +20,7 @@ type App struct {
 
 // Method #1: init
 // Initializes connection with MySQL Database
-func (app *App) Initialize() error {
+func (app *App) Initialize(DB_Username, DB_Pass, DB_Name string) error {
 	connectionString := fmt.Sprintf("%v:%v@tcp()/%v", DB_Username, DB_Pass, DB_Name)
 	var err error
 	app.DB, err = sql.Open("mysql", connectionString)
@@ -110,7 +110,7 @@ func (app *App) createProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendResponse(w, http.StatusOK, p)
+	sendResponse(w, http.StatusCreated, p)
 
 }
 
