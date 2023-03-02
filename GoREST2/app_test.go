@@ -100,8 +100,29 @@ func TestCreateProduct(t *testing.T) {
 	json.Unmarshal(response.Body.Bytes(), &m)
 
 	//check if the response contains the data that was actually sent.
-	if m["name"] != "chair" {
-		t.Errorf("Expected : %v, received %v.", "chair", m["name"])
+	if m["name"] != "Backpack" {
+		t.Errorf("Expected : %v, received %v.", "Backpack", m["name"])
 	}
 
 }
+
+//-------------------------------------------------------------------------------------------------------------------------------------------
+
+func TestDeleteProduct(t *testing.T) {
+	clearTable()
+	addProduct("Yoyo", 10, 10)
+	req, _ := http.NewRequest("GET", "/product/1", nil)
+	response := sendRequest(req)
+	checkStatCode(t, http.StatusOK, response.Code)
+
+	req, _ = http.NewRequest("DELETE", "/product/1", nil)
+	response = sendRequest(req)
+	checkStatCode(t, http.StatusOK, response.Code)
+
+	req, _ = http.NewRequest("GET", "/product/1", nil)
+	response = sendRequest(req)
+	checkStatCode(t, http.StatusBadRequest, response.Code)
+
+}
+
+//-------------------------------------------------------------------------------------------------------------------------------------------
