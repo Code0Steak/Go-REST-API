@@ -111,18 +111,68 @@ func TestCreateProduct(t *testing.T) {
 func TestDeleteProduct(t *testing.T) {
 	clearTable()
 	addProduct("Yoyo", 10, 10)
+	//get product details by sending GET request
 	req, _ := http.NewRequest("GET", "/product/1", nil)
 	response := sendRequest(req)
 	checkStatCode(t, http.StatusOK, response.Code)
 
+	//DELETE product
 	req, _ = http.NewRequest("DELETE", "/product/1", nil)
 	response = sendRequest(req)
 	checkStatCode(t, http.StatusOK, response.Code)
 
+	//Again check for GET, it should give 404
 	req, _ = http.NewRequest("GET", "/product/1", nil)
 	response = sendRequest(req)
-	checkStatCode(t, http.StatusBadRequest, response.Code)
+	checkStatCode(t, http.StatusNotFound, response.Code)
+
+}
+
+// -------------------------------------------------------------------------------------------------------------------------------------------
+func TestUpdateProduct(t *testing.T) {
+	clearTable()
+	//add new product
+	addProduct("keyboard", 29, 799)
+
+	//get product details from DB
+	req, _ := http.NewRequest("GET", "/product/1", nil)
+	response := sendRequest(req)
+
+	//store data received. this will be compared with updated data. There should be difference in both.
+	var prevProduct map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &prevProduct)
+
+	//payload to be passed
+	var product = []byte(`{"name":"keyboard","quantity":9,"price":799}`)
+	req, _ = http.NewRequest("PUT", "/product/1", bytes.NewBuffer(product))
+	req.Header.Set("Content-type", "application/json")
+
+	response = sendRequest(req)
+
+	var newVal map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &newVal)
+
+	if prevProduct["id"] != newVal["id"] {
+		t.Errorf("Expected: %v, received: %v", newVal["id"], prevProduct["id"])
+	}
+
+	if prevProduct["name"] != newVal["name"] {
+		t.Errorf("Expected: %v, received: %v", newVal["name"], prevProduct["name"])
+	}
+
+	if prevProduct["quantity"] == newVal["quantity"] {
+		t.Errorf("Difference was expected. But No difference in quantities")
+	}
+
+	if prevProduct["price"] != newVal["price"] {
+		t.Errorf("Expected: %v, received: %v", newVal["price"], prevProduct["price"])
+	}
 
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------------------
+//HOMEWORK
+//1. Write test for product not existing in DB
+//2. GET request to get all products
+//3. Clash in data-types for POST, PUT endpoints
+//4. Test for DELETE endpoint, where product to be deleted does not exist
